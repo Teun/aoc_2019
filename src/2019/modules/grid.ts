@@ -3,10 +3,10 @@ import { inflate } from "zlib";
 
 class Grid<T> {
     private _values: {[k: string]: GridPos<T>} = {};
-    private get values(): GridPos<T>[] {
-        return Object.keys(this._values).map(k => this._values[k]);
+    private get values(): Array<GridPos<T>> {
+        return Object.keys(this._values).map((k) => this._values[k]);
     }
-    hash() {
+    public hash() {
         const longString = Object.keys(this._values).reduce((a, v) => {
             return a + this._values[v].pos.name() + this._values[v].val.toString();
         }, "");
@@ -15,7 +15,7 @@ class Grid<T> {
         return sha.digest("hex");
     }
 
-    parseFromStringFunc(inp: string, map: {[k: string]: (() => T)}) {
+    public parseFromStringFunc(inp: string, map: {[k: string]: (() => T)}) {
         const lines = inp.split("\n");
         this._values = {};
         lines.forEach((l, y) => {
@@ -29,7 +29,7 @@ class Grid<T> {
             });
         });
     }
-    parseFromString(inp: string, map: {[k: string]: T}) {
+    public parseFromString(inp: string, map: {[k: string]: T}) {
         const lines = inp.split("\n");
         this._values = {};
         lines.forEach((l, y) => {
@@ -43,45 +43,45 @@ class Grid<T> {
             });
         });
     }
-    add(c: Coord, v: T) {
+    public add(c: Coord, v: T) {
         if (!(c.name() in this._values)) {
             this.set(c, v);
         } else {
-            throw `Position ${c.name()} already taken`;
+            throw new Error(`Position ${c.name()} already taken`);
         }
     }
-    clear(c: Coord) {
+    public clear(c: Coord) {
         delete this._values[c.name()];
     }
-    set(c: Coord, v: T) {
+    public set(c: Coord, v: T) {
         this._values[c.name()] = {pos: c, val: v};
     }
-    setIfEmpty(c: Coord, v: T) {
+    public setIfEmpty(c: Coord, v: T) {
         if (!(c.name() in this._values)) {
             this.set(c, v);
         }
     }
-    forCoord(c: Coord) {
+    public forCoord(c: Coord) {
         if (c.name() in this._values) {
             return this._values[c.name()].val;
         }
         return null;
     }
-    *positions(val: T= null): IterableIterator<GridPos<T>> {
+    public *positions(val: T= null): IterableIterator<GridPos<T>> {
         for (const p of this.values) {
             if (val === null || p.val === val) {
                 yield p;
             }
         }
     }
-    clone() {
+    public clone() {
         const newGrid = new Grid<T>();
         for (const gp of this.positions()) {
             newGrid.add(gp.pos, gp.val);
         }
         return newGrid;
     }
-    boundaries() {
+    public boundaries() {
         const out = this.values.reduce((a, v) => {
             a[0] = Math.min(a[0], v.pos.x);
             a[1] = Math.min(a[1], v.pos.y);
@@ -91,9 +91,9 @@ class Grid<T> {
         }, [Infinity, Infinity, -Infinity, -Infinity]);
         return [new Coord(out[0], out[1]), new Coord(out[2], out[3])];
     }
-    clip(boundaries: Coord[]) {
+    public clip(boundaries: Coord[]) {
         const allKeys = Object.keys(this._values);
-        allKeys.forEach(k => {
+        allKeys.forEach((k) => {
             const c = this._values[k];
             if (c.pos.x < boundaries[0].x ||
                 c.pos.x > boundaries[1].x ||
@@ -103,8 +103,8 @@ class Grid<T> {
                 }
         });
     }
-    toString(display: {(c: Coord, v: T): string} = null) {
-        if (!display) display = (c1, v1) => v1 === null ? " " : v1.toString()[0];
+    public toString(display: (c: Coord, v: T) => string = null) {
+        if (!display) { display = (c1, v1) => v1 === null ? " " : v1.toString()[0]; }
         const [leftTop, rightBottom] = this.boundaries();
         let out = "";
         for (let y = leftTop.y; y <= rightBottom.y; y++) {
@@ -127,23 +127,6 @@ interface GridPos<T> {
     val: T;
 }
 class Coord {
-    x: number;
-    y: number;
-
-    constructor(x: number, y: number) {this.x = x; this.y = y; }
-    static *forRectangle(fromX: number, toX: number, fromY: number, toY: number) {
-        for (let x = fromX; x <= toX; x++) {
-            for (let y = fromY; y <= toY; y++) {
-                yield new Coord(x, y);
-            }
-        }
-    }
-    name() {
-        return `${this.x}x${this.y}`;
-    }
-    equals(other: Coord) {
-        return this.x === other.x && this.y === other.y;
-    }
     get below() {
         return new Coord(this.x, this.y + 1);
     }
@@ -156,28 +139,45 @@ class Coord {
     get right() {
         return new Coord(this.x + 1, this.y);
     }
-    neighbourTo(d: Direction) {
-        if (d === Direction.North)return this.above;
-        if (d === Direction.South)return this.below;
-        if (d === Direction.East)return this.right;
-        if (d === Direction.West)return this.left;
+    public static *forRectangle(fromX: number, toX: number, fromY: number, toY: number) {
+        for (let x = fromX; x <= toX; x++) {
+            for (let y = fromY; y <= toY; y++) {
+                yield new Coord(x, y);
+            }
+        }
     }
-    neighbours() {
+    public x: number;
+    public y: number;
+
+    constructor(x: number, y: number) {this.x = x; this.y = y; }
+    public name() {
+        return `${this.x}x${this.y}`;
+    }
+    public equals(other: Coord) {
+        return this.x === other.x && this.y === other.y;
+    }
+    public neighbourTo(d: Direction) {
+        if (d === Direction.North) {return this.above; }
+        if (d === Direction.South) {return this.below; }
+        if (d === Direction.East) {return this.right; }
+        if (d === Direction.West) {return this.left; }
+    }
+    public neighbours() {
         return [this.above, this.below, this.left, this.right];
     }
-    neigboursDiag() {
+    public neigboursDiag() {
         return [this.above, this.below, this.left, this.right,
             new Coord(this.x - 1, this.y - 1), new Coord(this.x + 1, this.y + 1),
             new Coord(this.x + 1, this.y - 1), new Coord(this.x - 1, this.y + 1)
         ];
     }
-    offset(dx: number, dy: number) {
+    public offset(dx: number, dy: number) {
         return new Coord(this.x + dx, this.y + dy);
     }
-    distance(other: Coord) {
+    public distance(other: Coord) {
         return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
     }
-    distanceMnhtn(other: Coord) {
+    public distanceMnhtn(other: Coord) {
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
     }
 }

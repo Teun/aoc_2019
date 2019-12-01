@@ -10,15 +10,6 @@ class StringAppender {
             this.splitLast();
         }
     }
-    private splitLast() {
-        const lastBlock = this.blocks[this.lastBlock];
-        const newBlock = new Block();
-        newBlock.data = lastBlock.data.substring(BLOCKSIZE);
-        lastBlock.data = lastBlock.data.substring(0, BLOCKSIZE);
-        this.blocks.push(newBlock);
-        this.lastBlock++;
-
-    }
     public tail(n: number) {
         const s = this.blocks[this.lastBlock].data;
         return s.substring(s.length - n);
@@ -34,6 +25,15 @@ class StringAppender {
     }
     public get length(): number {
         return (this.lastBlock * BLOCKSIZE) + this.blocks[this.lastBlock].data.length;
+    }
+    private splitLast() {
+        const lastBlock = this.blocks[this.lastBlock];
+        const newBlock = new Block();
+        newBlock.data = lastBlock.data.substring(BLOCKSIZE);
+        lastBlock.data = lastBlock.data.substring(0, BLOCKSIZE);
+        this.blocks.push(newBlock);
+        this.lastBlock++;
+
     }
 }
 class Block {

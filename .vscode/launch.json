@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/2019/1.js",
+            "program": "${workspaceFolder}/src/2019/2.js",
             "cwd": "${workspaceFolder}/src/2019",
             "runtimeArgs": ["--stack-size=1000"]
         }

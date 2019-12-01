@@ -1,5 +1,5 @@
-import {Rig} from "./modules/rig";
 import { parseToObjects } from "./modules/lineParser";
+import {Rig} from "./modules/rig";
 
 const massToFuel = (mass: number) => {
     return Math.floor(mass / 3) - 2;

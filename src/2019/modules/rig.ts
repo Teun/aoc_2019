@@ -1,15 +1,9 @@
 import * as assert from "assert";
-import {readFile, exists } from "fs";
+import {exists, readFile } from "fs";
 import { promisify } from "util";
 
 export class Rig {
     constructor(private day: number, private func: (d: string) => Promise<any>) {}
-
-    private async getContent(): Promise<string> {
-        const read = promisify(readFile);
-        const d = await read(`input/${this.day}.txt`, "utf8");
-        return d;
-    }
 
     public async run() {
         const raw = await this.getContent();
@@ -25,18 +19,27 @@ export class Rig {
         console.log(`OK: ${result}`);
     }
     public async testFromFile(snipName, expected) {
-        const testFile = `input/${this.day}.snips.txt`;
-        assert(await promisify(exists)(testFile));
-        const all = await promisify(readFile)(testFile, "utf8");
+        const all = await getFileContent(`${this.day}.snips`);
         const snip: string = extractSnip(snipName, all);
         await this.test(snip, expected);
 
     }
 
+    private async getContent(): Promise<string> {
+        return getFileContent(this.day.toString());
+    }
+
 }
+const getFileContent = async (name: string) => {
+    const fileName = `input/${name}.txt`;
+    if (! (await promisify(exists)(fileName))) { return ""; }
+    const d = await promisify(readFile)(fileName, "utf8");
+    return d;
+};
+
 const extractSnip = (name, all: string) => {
     const lines = all.split("\n");
-    const startMarker = lines.findIndex(l => l.startsWith(`snip:${name}`));
+    const startMarker = lines.findIndex((l) => l.startsWith(`snip:${name}`));
     assert(startMarker > -1);
     const endMarker = lines.indexOf("====", startMarker);
     assert(endMarker > startMarker);
