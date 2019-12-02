@@ -14,6 +14,7 @@ const rig = new Rig(1,
         return result;
     }
 );
+
 (async () => {
     await rig.testFromFile("1", 33583);
     await rig.runPrint();
