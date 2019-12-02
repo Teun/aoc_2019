@@ -2,8 +2,9 @@ import * as assert from "assert";
 import {exists, readFile } from "fs";
 import { promisify } from "util";
 
+type RunType = "run"|"test";
 export interface RunContext{
-    type: string
+    type: RunType
 }
 
 export class Rig {

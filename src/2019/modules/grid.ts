@@ -1,5 +1,4 @@
 import { createHash } from "crypto";
-import { inflate } from "zlib";
 
 class Grid<T> {
     private _values: {[k: string]: GridPos<T>} = {};
