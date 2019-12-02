@@ -21,5 +21,15 @@
 		  ""
 		],
 		"description": "Testrig AOC"
+	  },
+	  "Const function": {
+		"prefix": "cfn",
+		"description": "function defined as constant",
+		"body": [
+		  "const ${1:funcname} = (${2:params}) => {",
+		  "",
+		  "}"
+		]
+
 	  }
 }
