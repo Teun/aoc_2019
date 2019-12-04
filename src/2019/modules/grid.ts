@@ -148,7 +148,14 @@ class Coord {
     public x: number;
     public y: number;
 
-    constructor(x: number, y: number) {this.x = x; this.y = y; }
+    constructor(x: (number | string), y?: number) {
+        if (typeof x === "string") {
+            const parts = x.split("x").map(Number);
+            this.x = parts[0]; this.y = parts[1];
+        } else {
+            this.x = x; this.y = y;
+        }
+    }
     public name() {
         return `${this.x}x${this.y}`;
     }
