@@ -10,7 +10,8 @@
         },
         "interface-name": false,
         "newline-per-chained-call": true,
-        "no-any": [true, {"ignore-rest-args": true}]
+        "no-any": [true, {"ignore-rest-args": true}],
+        "no-submodule-imports": [true, "is-equal/why"]
         
     }
 }
