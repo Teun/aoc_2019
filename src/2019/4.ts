@@ -20,6 +20,7 @@ const rig = new Rig(4,
         const from = Number(d.split(",")[0]);
         const to = Number(d.split(",")[1]);
         const result: number[] = [];
+
         for (let x = from; x <= to; x++) {
             if (fit(x)) {
                 result.push(x);
@@ -29,10 +30,11 @@ const rig = new Rig(4,
         return result.length;
     }
 );
-(async () => {
+(async (): Promise<void> => {
     await rig.test("111111,111111", 0);
     await rig.test("223450,223450", 0);
     await rig.test("123444,123444", 0);
     await rig.test("111122,111122", 1);
     await rig.testPrint("137683,596253");
-})().then(() => {console.log("Done"); });
+})()
+.then(() => {console.log("Done"); });

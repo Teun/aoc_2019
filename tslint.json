@@ -8,7 +8,9 @@
         "variable-name": {
             "options": ["allow-leading-underscore"]
         },
-        "interface-name": false
+        "interface-name": false,
+        "newline-per-chained-call": true,
+        "no-any": [true, {"ignore-rest-args": true}]
         
     }
 }

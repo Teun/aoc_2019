@@ -1,17 +1,13 @@
 import * as assert from "assert";
 import {exists, readFile } from "fs";
+import * as isEqual from "is-equal";
+import * as why from "is-equal/why";
 import { promisify } from "util";
 
 type RunType = "run" | "test";
 export interface RunContext {
     type: RunType;
 }
-const deepEquals = (first: any, second: any) => {
-    if (Array.isArray(first)) {
-        return first.every((e, i) => deepEquals(e, second[i]));
-    }
-    return first === second;
-};
 
 export class Rig {
     constructor(private day: number, private func: (d: string, opt: RunContext) => Promise<any>) {}
@@ -26,7 +22,9 @@ export class Rig {
     }
     public async test(raw, expected) {
         const result = await this.func(raw, {type: "test"});
-        assert(deepEquals(result, expected));
+        if (!isEqual(result, expected)) {
+            throw new Error(why(result, expected));
+        }
         console.log(`OK: ${result}`);
     }
     public async testPrint(raw) {
@@ -58,6 +56,7 @@ const extractSnip = (name, all: string) => {
     assert(startMarker > -1);
     const endMarker = lines.indexOf("====", startMarker);
     assert(endMarker > startMarker);
-    const snip = lines.slice(startMarker + 1, endMarker).join("\n");
+    const snip = lines.slice(startMarker + 1, endMarker)
+        .join("\n");
     return snip;
 };
