@@ -6,7 +6,7 @@ const rig = new Rig(5
     async (d, o) => {
         const arr = d.split(",")
             .map(Number);
-        if(o.type == "run"){
+        if (o.type === "run") {
             arr.push(5);
         }
         const input = arr.pop();

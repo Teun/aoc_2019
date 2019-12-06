@@ -9,8 +9,8 @@ export interface RunContext {
     type: RunType;
 }
 
-export class Rig {
-    constructor(private day: number, private func: (d: string, opt: RunContext) => Promise<any>) {}
+export class Rig<T> {
+    constructor(private day: number, private func: (d: string, opt: RunContext) => Promise<T>) {}
 
     public async run() {
         const raw = await this.getContent();
@@ -20,7 +20,7 @@ export class Rig {
     public async runPrint() {
         console.log(`Result: ${JSON.stringify(await this.run())}`);
     }
-    public async test(raw, expected) {
+    public async test(raw: string, expected: T) {
         const result = await this.func(raw, {type: "test"});
         if (!isEqual(result, expected)) {
             throw new Error(why(result, expected));

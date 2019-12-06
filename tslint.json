@@ -9,11 +9,9 @@
             "options": ["allow-leading-underscore"]
         },
         "interface-name": false,
-        "newline-per-chained-call": true,
+        "newline-per-chained-call": false,
         "no-any": [true, {"ignore-rest-args": true}],
         "no-submodule-imports": [true, "is-equal/why"],
-        "object-literal-sort-keys": false,
-        
-        
+        "object-literal-sort-keys": false
     }
 }

@@ -8,11 +8,11 @@ interface Op {
 }
 type ArgMode = 0 | 1;
 
-const OpFromNum = (num: number): Op => {
+const opFromNum = (num: number): Op => {
     const bitOnPos = (full: number, pos: number): ArgMode => {
         const padded = "00000" + full;
         return padded[padded.length - pos] === "0" ? 0 : 1;
-    }
+    };
     const baseOp = num % 100;
     const argMode1: ArgMode = bitOnPos(num, 3);
     const argMode2: ArgMode = bitOnPos(num, 4);
@@ -29,10 +29,30 @@ export class IntCodeMachine {
     public get Memory(): number[] {
         return this.memory;
     }
+    public get output(): number[] {
+        return this._stdout;
+    }
+    private _pointer: number = 0;
+    private _stdin: number[] = [];
+
+    private _stdout: number[] = [];
+
+    constructor(private memory: number[]) {
+    }
+
+    public input(val: number) {
+        this._stdin.push(val);
+    }
+
+    public Run() {
+        while (this.Step()) {
+            // do nothing
+        }
+    }
     private get(arg: number, argMode: number) {
-        if(argMode === 0){
+        if (argMode === 0) {
             return this.Memory[arg];
-        }else{
+        } else {
             return arg;
         }
     }
@@ -40,31 +60,11 @@ export class IntCodeMachine {
         const argMode = op ? op["argMode" + nr] : 1;
         return this.get(this.memory[nr + this._pointer], argMode);
     }
-    private _pointer: number = 0;
-    private _stdin: number[] = [];
-
-    public input(val: number) {
-        this._stdin.push(val);
-    }
     private readIn(): number {
         return this._stdin.shift();
     }
     private writeOut(val: number) {
         return this._stdout.push(val);
-    }
-    public get output() : number[] {
-        return this._stdout;
-    }
-    
-    private _stdout: number[] = [];
-
-    constructor(private memory: number[]) {
-    }
-
-    public Run() {
-        while (this.Step()) {
-            // do nothing
-        }
     }
 
     private Step(): boolean {
@@ -74,15 +74,15 @@ export class IntCodeMachine {
     }
 
     private ExecOp(): DoNext {
-        const operation = OpFromNum(this.memory[this._pointer]);
+        const operation = opFromNum(this.memory[this._pointer]);
         switch (operation.baseOp) {
             case 1: // add
-                const sum = this.arg(1, operation) + 
+                const sum = this.arg(1, operation) +
                     this.arg(2, operation);
                 this.memory[this.arg(3)] = sum;
                 return 4;
             case 2: // mult
-                const prod = this.arg(1, operation) * 
+                const prod = this.arg(1, operation) *
                     this.arg(2, operation);
                 this.memory[this.arg(3)] = prod;
                 return 4;
@@ -95,31 +95,31 @@ export class IntCodeMachine {
                 this.writeOut(wr);
                 return 2;
             case 5: // jmp_nonzero
-                const to_nonzero = this.arg(2, operation);
-                if(this.arg(1, operation) !== 0){
-                    this._pointer = to_nonzero;
+                const toNonzero = this.arg(2, operation);
+                if (this.arg(1, operation) !== 0) {
+                    this._pointer = toNonzero;
                     return "Stay";
                 }
-                return 3
+                return 3;
             case 6: // jmp_zero
-                const to_zero = this.arg(2, operation);
-                if(this.arg(1, operation) === 0){
-                    this._pointer = to_zero;
+                const toZero = this.arg(2, operation);
+                if (this.arg(1, operation) === 0) {
+                    this._pointer = toZero;
                     return "Stay";
                 }
-                return 3
+                return 3;
             case 7: // less
-                this.memory[this.arg(3)] = 
-                    (this.arg(1, operation) < 
-                        this.arg(2, operation)) 
-                        ? 1 : 0;
-                return 4
-            case 8: // equals
-                    this.memory[this.arg(3)] = 
-                    (this.arg(1, operation) === 
+                this.memory[this.arg(3)] =
+                    (this.arg(1, operation) <
                         this.arg(2, operation))
                         ? 1 : 0;
-                return 4
+                return 4;
+            case 8: // equals
+                    this.memory[this.arg(3)] =
+                    (this.arg(1, operation) ===
+                        this.arg(2, operation))
+                        ? 1 : 0;
+                    return 4;
             case 99: // exit
                 return "Exit";
             default:

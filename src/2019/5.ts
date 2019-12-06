@@ -6,7 +6,7 @@ const rig = new Rig(5
     async (d, o) => {
         const machine = new IntCodeMachine(d.split(",")
             .map(Number));
-        if(o.type === "run"){
+        if (o.type === "run") {
             machine.input(1);
         }
         machine.Run();
