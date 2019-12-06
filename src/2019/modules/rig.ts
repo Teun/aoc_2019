@@ -18,7 +18,7 @@ export class Rig {
         return result;
     }
     public async runPrint() {
-        console.log(`Result: ${await this.run()}`);
+        console.log(`Result: ${JSON.stringify(await this.run())}`);
     }
     public async test(raw, expected) {
         const result = await this.func(raw, {type: "test"});

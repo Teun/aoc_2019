@@ -11,7 +11,9 @@
         "interface-name": false,
         "newline-per-chained-call": true,
         "no-any": [true, {"ignore-rest-args": true}],
-        "no-submodule-imports": [true, "is-equal/why"]
+        "no-submodule-imports": [true, "is-equal/why"],
+        "object-literal-sort-keys": false,
+        
         
     }
 }
