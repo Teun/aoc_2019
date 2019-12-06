@@ -18,7 +18,7 @@ class Node {
 
     public ancestors(): Node[] {
         if (!this.center) {return []; }
-        return [...this.center.ancestors(), this.center];
+        return [this.center, ...this.center.ancestors()];
     }
 }
 
@@ -40,9 +40,9 @@ const rig = new Rig(6
         }, { });
         const santasAncestry = allNodes.SAN.ancestors().map((n) => n.name);
         const myAncestry = allNodes.YOU.ancestors().map((n) => n.name);
-        const stepsUp = myAncestry.reverse().findIndex((n) => santasAncestry.indexOf(n) > -1);
+        const stepsUp = myAncestry.findIndex((n) => santasAncestry.indexOf(n) > -1);
         const stepsDown =
-            santasAncestry.reverse().findIndex((n) => myAncestry.indexOf(n) > -1);
+            santasAncestry.findIndex((n) => myAncestry.indexOf(n) > -1);
         return stepsUp + stepsDown;
     }
 );
