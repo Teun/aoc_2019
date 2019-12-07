@@ -11,7 +11,7 @@ const rig = new Rig(2,
             machine.Memory[1] = 12;
             machine.Memory[2] = 2;
         }
-        machine.Run();
+        await machine.Run();
 
         return machine.Memory.join(",");
     }

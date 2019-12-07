@@ -24,8 +24,12 @@ const opFromNum = (num: number): Op => {
         argMode3
     };
 };
+function timeout(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export class IntCodeMachine {
+    private memory: number[];
     public get Memory(): number[] {
         return this.memory;
     }
@@ -34,18 +38,25 @@ export class IntCodeMachine {
     }
     private _pointer: number = 0;
     private _stdin: number[] = [];
+    public get StdIn(): number[] {
+        return this._stdin;
+    }
 
     private _stdout: number[] = [];
 
-    constructor(private memory: number[]) {
+    constructor(code: number[], private name: string = "<unnamed>") {
+        this.memory = code.slice(0);
     }
 
     public input(val: number) {
         this._stdin.push(val);
     }
+    public pipeOutput(out: number[]) {
+        this._stdout = out;
+    }
 
-    public Run() {
-        while (this.Step()) {
+    public async Run() {
+        while (await this.Step()) {
             // do nothing
         }
     }
@@ -60,20 +71,24 @@ export class IntCodeMachine {
         const argMode = op ? op["argMode" + nr] : 1;
         return this.get(this.memory[nr + this._pointer], argMode);
     }
-    private readIn(): number {
+    private async readIn(): Promise<number> {
+        while (this._stdin.length === 0) {
+            await timeout(50);
+        }
         return this._stdin.shift();
     }
     private writeOut(val: number) {
+        // console.debug(`     Machine ${this.name} outputs ${val}`);
         return this._stdout.push(val);
     }
 
-    private Step(): boolean {
-        const result = this.ExecOp();
+    private async Step(): Promise<boolean> {
+        const result = await this.ExecOp();
         if (typeof(result) === "number") { this._pointer += result; }
         return result !== "Exit";
     }
 
-    private ExecOp(): DoNext {
+    private async ExecOp(): Promise<DoNext> {
         const operation = opFromNum(this.memory[this._pointer]);
         switch (operation.baseOp) {
             case 1: // add
@@ -87,7 +102,7 @@ export class IntCodeMachine {
                 this.memory[this.arg(3)] = prod;
                 return 4;
             case 3: // read
-                const rd = this.readIn();
+                const rd = await this.readIn();
                 this.memory[this.arg(1)] = rd;
                 return 2;
             case 4: // write

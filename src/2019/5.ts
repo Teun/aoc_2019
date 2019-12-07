@@ -9,7 +9,7 @@ const rig = new Rig(5
         if (o.type === "run") {
             machine.input(1);
         }
-        machine.Run();
+        await machine.Run();
         return { m: machine.Memory, out: machine.output };
     }
 );

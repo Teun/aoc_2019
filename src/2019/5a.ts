@@ -12,7 +12,7 @@ const rig = new Rig(5
         const input = arr.pop();
         const machine = new IntCodeMachine(arr);
         machine.input(input);
-        machine.Run();
+        await machine.Run();
         return machine.output;
     }
 );

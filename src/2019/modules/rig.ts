@@ -25,7 +25,7 @@ export class Rig<T> {
         if (!isEqual(result, expected)) {
             throw new Error(why(result, expected));
         }
-        console.log(`OK: ${result}`);
+        console.log(`OK: ${JSON.stringify(result)}`);
     }
     public async testPrint(raw) {
         const result = await this.func(raw, {type: "test"});
