@@ -9,35 +9,35 @@ export interface RunContext {
     type: RunType;
 }
 
-export class Rig<T> {
-    constructor(private day: number, private func: (d: string, opt: RunContext) => Promise<T>) {}
+export class Rig<T, OT> {
+    constructor(private day: number, private func: (d: string, opt: RunContext, testOpt: OT) => Promise<T>) {}
 
-    public async run() {
+    public async run(opt?: OT) {
         const raw = await this.getContent();
-        const result = await this.func(raw, {type: "run"});
+        const result = await this.func(raw, {type: "run"}, opt);
         return result;
     }
-    public async runPrint() {
-        const result = await this.run();
+    public async runPrint(opt?: OT) {
+        const result = await this.run(opt);
         const out = (typeof(result) === "string") ? result : JSON.stringify(result);
         console.log(`Result: \n${out}`);
     }
-    public async test(raw: string, expected: T) {
-        const result = await this.func(raw, {type: "test"});
+    public async test(raw: string, expected: T, opt?: OT) {
+        const result = await this.func(raw, {type: "test"}, opt);
         if (!isEqual(result, expected)) {
             throw new Error(why(result, expected));
         }
         const out = (typeof(result) === "string") ? result : JSON.stringify(result);
         console.log(`OK: ${out}`);
     }
-    public async testPrint(raw) {
-        const result = await this.func(raw, {type: "test"});
+    public async testPrint(raw, opt?: OT) {
+        const result = await this.func(raw, {type: "test"}, opt);
         console.log(`Result: ${result}`);
     }
-    public async testFromFile(snipName, expected) {
+    public async testFromFile(snipName, expected, opt?: OT) {
         const all = await getFileContent(`${this.day}.snips`);
         const snip: string = extractSnip(snipName, all);
-        await this.test(snip, expected);
+        await this.test(snip, expected, opt);
 
     }
 

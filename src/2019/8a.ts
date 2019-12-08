@@ -1,17 +1,12 @@
-import {firstBy as by} from "thenby";
 import { Coord, Grid } from "./modules/grid";
-import { parseToObjects } from "./modules/lineParser";
+import { colors, plotGrid } from "./modules/gridplot";
 import { Rig } from "./modules/rig";
 
 const rig = new Rig(8,
-    async (d, o) => {
+    async (d, o, ro: {width: number, height: number, outputFile?: string}) => {
         const digits = d.trim().split("");
-        let width = 25;
-        let height = 6;
-        if (o.type === "test") {
-            width = 2;
-            height = 2;
-        }
+        const width = ro.width;
+        const height = ro.height;
         const layerSize = (width * height);
         const numLayers = digits.length / layerSize;
         const layers = ([...Array(numLayers).keys()]).map((v, i) => {
@@ -31,11 +26,15 @@ const rig = new Rig(8,
                 g.set(new Coord(x, y), pixel);
             }
         }
+        if (ro.outputFile) {
+            await plotGrid(g, `./output/${ro.outputFile}.png`,
+                (v) => v === "#" ? colors.black : colors.white
+                );
+        }
         return g.toString();
-
     }
 );
 (async () => {
-    await rig.test("0222112222120000", "# \n #\n");
-    await rig.runPrint();
+    await rig.test("0222112222120000", "# \n #\n", {width: 2, height: 2});
+    await rig.runPrint({width: 25, height: 6, outputFile: "8a"});
 })().then(() => {console.log("Done"); });
