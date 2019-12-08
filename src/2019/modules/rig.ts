@@ -18,14 +18,17 @@ export class Rig<T> {
         return result;
     }
     public async runPrint() {
-        console.log(`Result: ${JSON.stringify(await this.run())}`);
+        const result = await this.run();
+        const out = (typeof(result) === "string") ? result : JSON.stringify(result);
+        console.log(`Result: \n${out}`);
     }
     public async test(raw: string, expected: T) {
         const result = await this.func(raw, {type: "test"});
         if (!isEqual(result, expected)) {
             throw new Error(why(result, expected));
         }
-        console.log(`OK: ${JSON.stringify(result)}`);
+        const out = (typeof(result) === "string") ? result : JSON.stringify(result);
+        console.log(`OK: ${out}`);
     }
     public async testPrint(raw) {
         const result = await this.func(raw, {type: "test"});
