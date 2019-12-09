@@ -76,17 +76,13 @@ export class IntCodeMachine {
         }
         throw new Error(`Invalid argMode: ${mode}`);
     }
-    private get(arg: number, argMode: ArgMode) {
+    private argValue(arg: number, argMode: ArgMode) {
         if (argMode === 1) {
             return this.Memory[this._pointer + arg];
         } else if (argMode === 0 || argMode === 2) {
             return this.Memory[this.argPos(arg, argMode)] || 0;
         }
         throw new Error(`Invalid argMode: ${argMode}`);
-    }
-    private arg(nr: number, op: Op) {
-        const argMode = op ? op["argMode" + nr] : 1;
-        return this.get(nr, argMode);
     }
     private async readIn(): Promise<number> {
         while (this._stdin.length === 0) {
@@ -109,13 +105,13 @@ export class IntCodeMachine {
         const operation = opFromNum(this.memory[this._pointer]);
         switch (operation.baseOp) {
             case 1: // add
-                const sum = this.arg(1, operation) +
-                    this.arg(2, operation);
+                const sum = this.argValue(1, operation.argMode1) +
+                    this.argValue(2, operation.argMode2);
                 this.memory[this.argPos(3, operation.argMode3)] = sum;
                 return 4;
             case 2: // mult
-                const prod = this.arg(1, operation) *
-                    this.arg(2, operation);
+                const prod = this.argValue(1, operation.argMode1) *
+                    this.argValue(2, operation.argMode2);
                 this.memory[this.argPos(3, operation.argMode3)] = prod;
                 return 4;
             case 3: // read
@@ -123,37 +119,37 @@ export class IntCodeMachine {
                 this.memory[this.argPos(1, operation.argMode1)] = rd;
                 return 2;
             case 4: // write
-                const wr = this.arg(1, operation);
+                const wr = this.argValue(1, operation.argMode1);
                 this.writeOut(wr);
                 return 2;
             case 5: // jmp_nonzero
-                const toNonzero = this.arg(2, operation);
-                if (this.arg(1, operation) !== 0) {
-                    this._pointer = toNonzero;
+                const toIfNonzero = this.argValue(2, operation.argMode2);
+                if (this.argValue(1, operation.argMode1) !== 0) {
+                    this._pointer = toIfNonzero;
                     return "Stay";
                 }
                 return 3;
             case 6: // jmp_zero
-                const toZero = this.arg(2, operation);
-                if (this.arg(1, operation) === 0) {
-                    this._pointer = toZero;
+                const toIfZero = this.argValue(2, operation.argMode2);
+                if (this.argValue(1, operation.argMode1) === 0) {
+                    this._pointer = toIfZero;
                     return "Stay";
                 }
                 return 3;
             case 7: // less
                 this.memory[this.argPos(3, operation.argMode3)] =
-                    (this.arg(1, operation) <
-                        this.arg(2, operation))
+                    (this.argValue(1, operation.argMode1) <
+                        this.argValue(2, operation.argMode2))
                         ? 1 : 0;
                 return 4;
             case 8: // equals
                     this.memory[this.argPos(3, operation.argMode3)] =
-                    (this.arg(1, operation) ===
-                        this.arg(2, operation))
+                    (this.argValue(1, operation.argMode1) ===
+                        this.argValue(2, operation.argMode2))
                         ? 1 : 0;
                     return 4;
             case 9: // change_offset
-                const add = this.arg(1, operation);
+                const add = this.argValue(1, operation.argMode1);
                 this._relativeBase += add;
                 return 2;
             case 99: // exit
