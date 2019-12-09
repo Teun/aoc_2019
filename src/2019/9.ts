@@ -5,7 +5,7 @@ const rig = new Rig(9,
     async (d) => {
         const machine = new IntCodeMachine(d.split(",")
             .map(Number));
-        machine.input(1);
+        machine.input(2);
         await machine.Run();
         return machine.output;
     }
