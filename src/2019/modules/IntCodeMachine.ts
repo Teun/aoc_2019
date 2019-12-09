@@ -1,3 +1,5 @@
+import { AssertionError } from "assert";
+
 type DoNext = "Exit" | "Stay" | number;
 
 interface Op {
@@ -6,12 +8,12 @@ interface Op {
     argMode2: ArgMode;
     argMode3: ArgMode;
 }
-type ArgMode = 0 | 1;
+type ArgMode = number;
 
 const opFromNum = (num: number): Op => {
     const bitOnPos = (full: number, pos: number): ArgMode => {
         const padded = "00000" + full;
-        return padded[padded.length - pos] === "0" ? 0 : 1;
+        return Number(padded[padded.length - pos]);
     };
     const baseOp = num % 100;
     const argMode1: ArgMode = bitOnPos(num, 3);
@@ -37,6 +39,7 @@ export class IntCodeMachine {
         return this._stdout;
     }
     private _pointer: number = 0;
+    private _relativeBase = 0;
     private _stdin: number[] = [];
     public get StdIn(): number[] {
         return this._stdin;
@@ -60,16 +63,30 @@ export class IntCodeMachine {
             // do nothing
         }
     }
-    private get(arg: number, argMode: number) {
-        if (argMode === 0) {
-            return this.Memory[arg];
-        } else {
-            return arg;
+    private argPos(arg: number, mode: ArgMode) {
+        if (mode === 1) {
+            throw new Error("No using of mode 1 for position");
         }
+        if (mode === 0) {
+            return this.Memory[arg + this._pointer];
+        }
+        if (mode === 2) {
+            return this.Memory[arg + this._pointer] + this._relativeBase;
+
+        }
+        throw new Error(`Invalid argMode: ${mode}`);
     }
-    private arg(nr: number, op?: Op) {
+    private get(arg: number, argMode: ArgMode) {
+        if (argMode === 1) {
+            return this.Memory[this._pointer + arg];
+        } else if (argMode === 0 || argMode === 2) {
+            return this.Memory[this.argPos(arg, argMode)] || 0;
+        }
+        throw new Error(`Invalid argMode: ${argMode}`);
+    }
+    private arg(nr: number, op: Op) {
         const argMode = op ? op["argMode" + nr] : 1;
-        return this.get(this.memory[nr + this._pointer], argMode);
+        return this.get(nr, argMode);
     }
     private async readIn(): Promise<number> {
         while (this._stdin.length === 0) {
@@ -94,16 +111,16 @@ export class IntCodeMachine {
             case 1: // add
                 const sum = this.arg(1, operation) +
                     this.arg(2, operation);
-                this.memory[this.arg(3)] = sum;
+                this.memory[this.argPos(3, operation.argMode3)] = sum;
                 return 4;
             case 2: // mult
                 const prod = this.arg(1, operation) *
                     this.arg(2, operation);
-                this.memory[this.arg(3)] = prod;
+                this.memory[this.argPos(3, operation.argMode3)] = prod;
                 return 4;
             case 3: // read
                 const rd = await this.readIn();
-                this.memory[this.arg(1)] = rd;
+                this.memory[this.argPos(1, operation.argMode1)] = rd;
                 return 2;
             case 4: // write
                 const wr = this.arg(1, operation);
@@ -124,17 +141,21 @@ export class IntCodeMachine {
                 }
                 return 3;
             case 7: // less
-                this.memory[this.arg(3)] =
+                this.memory[this.argPos(3, operation.argMode3)] =
                     (this.arg(1, operation) <
                         this.arg(2, operation))
                         ? 1 : 0;
                 return 4;
             case 8: // equals
-                    this.memory[this.arg(3)] =
+                    this.memory[this.argPos(3, operation.argMode3)] =
                     (this.arg(1, operation) ===
                         this.arg(2, operation))
                         ? 1 : 0;
                     return 4;
+            case 9: // change_offset
+                const add = this.arg(1, operation);
+                this._relativeBase += add;
+                return 2;
             case 99: // exit
                 return "Exit";
             default:
