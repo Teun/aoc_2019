@@ -40,6 +40,11 @@ export class IntCodeMachine {
     }
     private _pointer: number = 0;
     private _relativeBase = 0;
+    private _state = 0;
+    public get isRunning(): boolean {
+        return this._state === 1;
+    }
+
     private _stdin: number[] = [];
     public get StdIn(): number[] {
         return this._stdin;
@@ -54,14 +59,26 @@ export class IntCodeMachine {
     public input(val: number) {
         this._stdin.push(val);
     }
+    public async readOut(): Promise<number> {
+        let ms = 1;
+        while (this._stdout.length === 0 && this._state === 1) {
+            await timeout(50);
+            ms = Math.min(50, ms * 2);
+        }
+        if (this._stdout.length === 0) {return null; }
+        return this._stdout.shift();
+    }
+
     public pipeOutput(out: number[]) {
         this._stdout = out;
     }
 
     public async Run() {
+        this._state = 1;
         while (await this.Step()) {
             // do nothing
         }
+        this._state = 0;
     }
     private argPos(arg: number, mode: ArgMode) {
         if (mode === 1) {
@@ -85,8 +102,10 @@ export class IntCodeMachine {
         throw new Error(`Invalid argMode: ${argMode}`);
     }
     private async readIn(): Promise<number> {
+        let ms = 1;
         while (this._stdin.length === 0) {
-            await timeout(50);
+            await timeout(ms);
+            ms = Math.min(50, ms * 2);
         }
         return this._stdin.shift();
     }

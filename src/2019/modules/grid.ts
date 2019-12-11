@@ -188,5 +188,8 @@ class Coord {
     }
 }
 enum Direction {North, East, South, West}
+const rotate = (from: Direction, turns: number): Direction => {
+    return ((from + turns) + 4) % 4;
 
-export {Coord, Direction, Grid, GridPos};
+};
+export {Coord, Direction, Grid, GridPos, rotate};
