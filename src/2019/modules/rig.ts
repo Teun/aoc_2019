@@ -34,7 +34,7 @@ export class Rig<T, OT> {
         const result = await this.func(raw, {type: "test"}, opt);
         console.log(`Result: ${result}`);
     }
-    public async testFromFile(snipName, expected, opt?: OT) {
+    public async testFromFile(snipName, expected: T, opt?: OT) {
         const all = await getFileContent(`${this.day}.snips`);
         const snip: string = extractSnip(snipName, all);
         await this.test(snip, expected, opt);
@@ -55,7 +55,7 @@ const getFileContent = async (name: string) => {
 
 const extractSnip = (name, all: string) => {
     const lines = all.split("\n");
-    const startMarker = lines.findIndex((l) => l.startsWith(`snip:${name}`));
+    const startMarker = lines.indexOf(`snip:${name}`);
     assert(startMarker > -1);
     const endMarker = lines.indexOf("====", startMarker);
     assert(endMarker > startMarker);
