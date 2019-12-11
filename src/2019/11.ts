@@ -10,7 +10,7 @@ const rig = new Rig(11,
         const grid = new Grid<string>();
         let pos = new Coord(0, 0);
         let dir = Direction.North;
-        grid.set(pos, "#");
+        // grid.set(pos, "#");
         machine.Run();
         let stepsRun = 0;
         while (machine.isRunning) {
@@ -27,7 +27,7 @@ const rig = new Rig(11,
             dir = rotate(dir, move || -1);
             pos = pos.neighbourTo(dir);
             stepsRun++;
-            console.log(`steps run: ${stepsRun}, current pos: ${pos.name()}`);
+            // console.log(`steps run: ${stepsRun}, current pos: ${pos.name()}`);
         }
         console.log([...grid.positions()].length);
         return grid.toString();
