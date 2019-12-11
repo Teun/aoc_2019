@@ -10,6 +10,7 @@ const rig = new Rig(11,
         const grid = new Grid<string>();
         let pos = new Coord(0, 0);
         let dir = Direction.North;
+        grid.set(pos, "#");
         machine.Run();
         let stepsRun = 0;
         while (machine.isRunning) {
