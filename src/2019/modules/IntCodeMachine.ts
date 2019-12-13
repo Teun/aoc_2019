@@ -42,6 +42,7 @@ export class IntCodeMachine {
     private _relativeBase = 0;
     private _state = 0;
     private _totalWaitTime = 0;
+    private _logLevel = 0;
     public get isRunning(): boolean {
         return this._state === 1;
     }
@@ -75,15 +76,21 @@ export class IntCodeMachine {
         this._stdout = out;
     }
 
-    public async Run() {
+    public async Run(logLevel: number = 0) {
+        this._logLevel = logLevel;
         this._state = 1;
         const start = new Date().getTime();
         while (await this.Step()) {
             // do nothing
         }
         const end = new Date().getTime();
-        console.log(`Machine stopping after ${end - start} ms. Total waiting time: ${this._totalWaitTime} ms`);
+        this.log(`Machine stopping after ${end - start} ms. Total waiting time: ${this._totalWaitTime} ms`);
         this._state = 0;
+        this._logLevel = 0;
+    }
+
+    private log(msg: string) {
+        console.log(msg);
     }
     private argPos(arg: number, mode: ArgMode) {
         if (mode === 1) {
