@@ -61,15 +61,28 @@ export class IntCodeMachine {
     public input(val: number) {
         this._stdin.push(val);
     }
-    public async readOut(): Promise<number> {
+    public async waitForOutput() {
         let ms = 0;
         while (this._stdout.length === 0 && this._state === 1) {
             this._totalWaitTime += ms;
             await timeout(ms);
             ms = Math.min(50, (ms || 1) * 2);
         }
+        return this._state === 1;
+    }
+    public async readOut(): Promise<number> {
+        await this.waitForOutput();
         if (this._stdout.length === 0) {return null; }
         return this._stdout.shift();
+    }
+    public readOutTillEmpty(cb: (values: number[]) => void, groupSize: number = 1): boolean {
+        let read = false;
+        while (this._stdout.length >= groupSize) {
+            const block = this._stdout.splice(0, groupSize);
+            cb(block);
+            read = true;
+        }
+        return read;
     }
 
     public pipeOutput(out: number[]) {
