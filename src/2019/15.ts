@@ -17,7 +17,7 @@ const selectUntried =
          return null;
 };
 
-function dfs<T>(g: Grid<T>, from: Coord, to: Coord, access: (v: T) => boolean) {
+function bfs<T>(g: Grid<T>, from: Coord, to: Coord, access: (v: T) => boolean) {
   const visited = new Set<string>([from.name()]);
   const toExpand = new Set<Coord>([from]);
   const allPaths: {[key: string]: Coord[]} = {};
@@ -67,7 +67,7 @@ const rig = new Rig(15,
                 break;
             }
         }
-        const path = dfs(grid, new Coord(0, 0), [...grid.positions("X")][0].pos,
+        const path = bfs(grid, new Coord(0, 0), [...grid.positions("X")][0].pos,
             (v) => v !== "#");
         return path.length - 1;
     }
