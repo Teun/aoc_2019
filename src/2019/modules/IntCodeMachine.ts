@@ -75,8 +75,11 @@ export class IntCodeMachine {
         if (this._stdout.length === 0) {return null; }
         return this._stdout.shift();
     }
-    public readOutTillEmpty(cb: (values: number[]) => void, groupSize: number = 1): boolean {
+    public readOutTillEmpty(cb: (values: number[]) => void, groupSize?: number): boolean {
         let read = false;
+        if (!groupSize) {
+            groupSize = this._stdout.length;
+        }
         while (this._stdout.length >= groupSize) {
             const block = this._stdout.splice(0, groupSize);
             cb(block);
