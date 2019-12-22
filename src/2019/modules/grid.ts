@@ -14,17 +14,16 @@ class Grid<T> {
         return sha.digest("hex");
     }
 
-    public parseFromStringFunc(inp: string, map: {[k: string]: (() => T)}) {
+    public parseFromStringFunc(inp: string, mapFunc: (char: string) => T) {
         const lines = inp.split("\n");
         this._values = {};
         lines.forEach((l, y) => {
             const chars = l.split("");
             chars.forEach((char, x) => {
-                if (char in map) {
-                    const mapped = map[char];
-                    const newPos = {pos: new Coord(x, y), val: mapped()};
-                    this._values[newPos.pos.name()] = newPos;
-                }
+                const mapped = mapFunc(char);
+                if (mapped === null) {return; }
+                const newPos = {pos: new Coord(x, y), val: mapped};
+                this._values[newPos.pos.name()] = newPos;
             });
         });
     }
@@ -66,9 +65,17 @@ class Grid<T> {
         }
         return null;
     }
-    public *positions(val: T= null): IterableIterator<GridPos<T>> {
+    public *positions(val: T = null): IterableIterator<GridPos<T>> {
         for (const p of this.values) {
             if (val === null || p.val === val) {
+                yield p;
+            }
+        }
+    }
+    public *positionsFunc(val: ((v: T) => boolean)
+        ): IterableIterator<GridPos<T>> {
+        for (const p of this.values) {
+            if (val === null || val(p.val)) {
                 yield p;
             }
         }
