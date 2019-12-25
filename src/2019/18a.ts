@@ -6,11 +6,10 @@ class State {
     private _hash: string = null;
     constructor(
         public robots: Coord[],
-        public keysCollected: string [],
-        public nowMoving: number) { }
+        public keysCollected: string[]) {}
     public getHash() {
         if (!this._hash) {
-            this._hash = `${this.robots.map((c) => c.name()).join()}_${this.keysCollected.join("")}_${this.nowMoving}`;
+            this._hash = `${this.robots.map((c) => c.name()).join()}_${this.keysCollected.join("")}`;
         }
         return this._hash;
     }
@@ -46,7 +45,7 @@ const rig = new Rig(18,
 
         let keyFound = 0;
 
-        const path = pf.bfs(new State(start, [], null),
+        const path = pf.bfs_weighted(new State(start, []),
             (s) => {
                 if (s.keysCollected.length > keyFound) {
                     keyFound = s.keysCollected.length;
@@ -55,26 +54,23 @@ const rig = new Rig(18,
                 let moves: Array<[number, Coord]> = [];
                 s.robots
                     .forEach((r, i) => {
-                        if (!(s.nowMoving === null || s.nowMoving === i)) { return; }
                         const positions = r.neighbours().filter((n) => {
                             const val = grid.forCoord(n);
-                            if (val === "#") {return false; }
-                            if (val >= "A" && val <= "Z") {return s.keysCollected.indexOf(val.toLowerCase()) > -1; }
+                            if (val === "#") { return false; }
+                            if (val >= "A" && val <= "Z") { return s.keysCollected.indexOf(val.toLowerCase()) > -1; }
                             return true;
                         });
                         moves = moves.concat(positions.map((p) => [i, p]));
-                });
+                    });
                 return moves.map((m) => {
-                    let r = m[0];
                     const val = grid.forCoord(m[1]);
                     const keys = new Set(s.keysCollected);
                     if (val >= "a" && val <= "z" && !keys.has(val)) {
                         keys.add(val);
-                        r = null;
                     }
                     const positions = s.robots.slice(0);
                     positions[m[0]] = m[1];
-                    return new State(positions, [...keys.values()].sort(), r);
+                    return { state: new State(positions, [...keys.values()].sort()), cost: 1};
                 });
             },
             (s) => s.keysCollected.length === targetCoords.length);
