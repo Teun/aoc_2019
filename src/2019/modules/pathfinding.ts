@@ -12,6 +12,10 @@ interface IVector<T> {
     state: T;
     cost: number;
 }
+interface IPathWithCost<T> {
+    path: T[];
+    cost: number;
+}
 class PrioQueue<T> {
     private _queue: Array<IEndOfPath<T>> = [];
     public enqueue(v: IEndOfPath<T>) {
@@ -28,13 +32,16 @@ class PrioQueue<T> {
     public peek() {
         return this._queue[0];
     }
+    public get size() : number {
+        return this._queue.length;
+    }
 }
 
 class Pathfinder<T extends IHashcode> {
     /**
      * bfs - Breadth First Search
      */
-    public bfs_all(from: T, expand: (p: T) => T[], done: (T) => boolean): T[][] {
+    public bfs_all(from: T, expand: (p: T) => T[], isTarget: (T) => boolean): T[][] {
         const visited = new Set<string>([from.getHash()]);
         const toExpand = [from];
         const allPaths: { [key: string]: IEndOfPath<T> } = {};
@@ -50,15 +57,14 @@ class Pathfinder<T extends IHashcode> {
                     allPaths[n.getHash()] = { lastState: n, prevStateHash: ex.getHash(), cost: parentPath.cost + 1};
                     toExpand.push(n);
                 }
-                if (done(n)) {
+                if (isTarget(n)) {
                     allShortestPaths.push(this.reconstructPath(n.getHash(), allPaths));
                 }
             }
         }
         return allShortestPaths;
     }
-    public bfs_weighted(from: T, expand: (p: T) => Array<IVector<T>>, isTarget: (t: T) => boolean): T[] {
-        const visited = new Set<string>([from.getHash()]);
+    public bfs_weighted(from: T, expand: (p: T) => Array<IVector<T>>, isTarget: (t: T) => boolean): IPathWithCost<T> {
         const allPaths: { [key: string]: IEndOfPath<T> } = {};
         allPaths[from.getHash()] = {lastState: from, prevStateHash: "", cost: 0};
         const toExpand = new PrioQueue<T>();
@@ -66,13 +72,22 @@ class Pathfinder<T extends IHashcode> {
 
         let bestPath: IEndOfPath<T> = {lastState: null, cost: Infinity, prevStateHash: ""};
 
+        let counter = 0;
+
         while (true) {
+            counter++;
             const ex = toExpand.dequeue();
             const parentPath = allPaths[ex.lastState.getHash()];
+            console.time("expand");
             const accNeighbours = expand(ex.lastState);
+            if (counter % 100 === 0) {
+                console.timeEnd("expand");
+                console.log(toExpand.size);
+            }
             for (const n of accNeighbours) {
-                if (!visited.has(n.state.getHash())) {
-                    visited.add(n.state.getHash());
+                const thisHash = n.state.getHash();
+                if ((!(thisHash in allPaths))
+                    || parentPath.cost + n.cost < allPaths[thisHash].cost) {
                     allPaths[n.state.getHash()] = {
                         lastState: n.state,
                         prevStateHash: ex.lastState.getHash(),
@@ -84,8 +99,11 @@ class Pathfinder<T extends IHashcode> {
                         bestPath = allPaths[n.state.getHash()];
                     }
                 }
-                if(bestPath.cost <= toExpand.peek().cost) {
-                    return this.reconstructPath(bestPath.lastState.getHash(), allPaths);
+                if (bestPath.cost <= toExpand.peek().cost) {
+                    return {
+                        cost: bestPath.cost,
+                        path: this.reconstructPath(bestPath.lastState.getHash(), allPaths)
+                    };
                 }
             }
         }

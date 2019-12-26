@@ -9,7 +9,8 @@ class State {
         public keysCollected: string[]) {}
     public getHash() {
         if (!this._hash) {
-            this._hash = `${this.robots.map((c) => c.name()).join()}_${this.keysCollected.join("")}`;
+            const canonKeys = this.keysCollected.slice(0).sort().join("");
+            this._hash = `${this.robots.map((c) => c.name()).join()}_${canonKeys}`;
         }
         return this._hash;
     }
@@ -27,7 +28,28 @@ const switchCenter = (g: Grid<string>) => {
     g.set(center.neighbourTo(Direction.South).neighbourTo(Direction.West), "@");
     g.set(center.neighbourTo(Direction.South).neighbourTo(Direction.East), "@");
 };
-
+const findAllPathsToUnfoundKeys = (s: State, grid: Grid<string>) => {
+    const pathsPerQuadrant = s.robots.map((rp, ri) => {
+        const pf = new Pathfinder<State>();
+        return pf.bfs_all(new State([rp], s.keysCollected),
+            (from: State) => {
+                const positions = from.robots[0].neighbours().filter((n) => {
+                    const val = grid.forCoord(n);
+                    if (val === "#") { return false; }
+                    if (val >= "A" && val <= "Z") { return s.keysCollected.indexOf(val.toLowerCase()) > -1; }
+                    return true;
+                });
+                return positions.map((p) => new State([p], s.keysCollected));
+            },
+            (isTarget: State) => {
+                const val = grid.forCoord(isTarget.robots[0]);
+                return (val >= "a" && val <= "z" && s.keysCollected.indexOf(val) === -1);
+            }
+            )
+            .map((path: State[]) => ({robot: ri, cost: path.length - 1, end: path[path.length - 1].robots[0]}));
+        });
+    return pathsPerQuadrant.reduce((p, n) => p.concat(n), []);
+};
 const rig = new Rig(18,
     async (d) => {
         const grid = new Grid<string>();
@@ -43,39 +65,27 @@ const rig = new Rig(18,
             return c >= "a" && c <= "z";
         })].map((gp) => gp.pos);
 
-        let keyFound = 0;
-
-        const path = pf.bfs_weighted(new State(start, []),
+        let largestKeySeries: string[] = [];
+        const pathWithCost = pf.bfs_weighted(new State(start, []),
             (s) => {
-                if (s.keysCollected.length > keyFound) {
-                    keyFound = s.keysCollected.length;
-                    console.log(`Found keys: ${keyFound}`);
+                if (s.keysCollected.length > largestKeySeries.length) {
+                    largestKeySeries = s.keysCollected;
+                    console.log(`Seen series of ${largestKeySeries.length}: ${largestKeySeries.join()}`);
                 }
-                let moves: Array<[number, Coord]> = [];
-                s.robots
-                    .forEach((r, i) => {
-                        const positions = r.neighbours().filter((n) => {
-                            const val = grid.forCoord(n);
-                            if (val === "#") { return false; }
-                            if (val >= "A" && val <= "Z") { return s.keysCollected.indexOf(val.toLowerCase()) > -1; }
-                            return true;
-                        });
-                        moves = moves.concat(positions.map((p) => [i, p]));
-                    });
-                return moves.map((m) => {
-                    const val = grid.forCoord(m[1]);
-                    const keys = new Set(s.keysCollected);
-                    if (val >= "a" && val <= "z" && !keys.has(val)) {
-                        keys.add(val);
-                    }
-                    const positions = s.robots.slice(0);
-                    positions[m[0]] = m[1];
-                    return { state: new State(positions, [...keys.values()].sort()), cost: 1};
+                const steps = findAllPathsToUnfoundKeys(s, grid);
+                return steps.map((step) => {
+                    const keys = s.keysCollected.slice(0);
+                    const targetKey = grid.forCoord(step.end);
+                    keys.push(targetKey);
+                    const newPositions = s.robots.slice(0);
+                    newPositions[step.robot] = step.end;
+
+                    const newState = new State(newPositions, keys);
+                    return { state: newState, cost: step.cost};
                 });
             },
             (s) => s.keysCollected.length === targetCoords.length);
-
-        return path.length - 1;
+        return pathWithCost.cost;
     }
 );
 (async () => {
