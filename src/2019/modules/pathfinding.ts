@@ -41,6 +41,32 @@ class Pathfinder<T extends IHashcode> {
     /**
      * bfs - Breadth First Search
      */
+    public bfs(from: T, expand: (p: T) => T[], isTarget: (T) => boolean): T[] {
+        const visited = new Set<string>([from.getHash()]);
+        const toExpand = [from];
+        const allPaths: { [key: string]: IEndOfPath<T> } = {};
+        let shortestPath: T[] = [];
+        allPaths[from.getHash()] = {lastState: from, prevStateHash: "", cost: 0};
+        while (shortestPath.length == 0) {
+            const ex = toExpand.shift();
+            const parentPath = allPaths[ex.getHash()];
+            const accNeighbours = expand(ex);
+            for (const n of accNeighbours) {
+                if (!visited.has(n.getHash())) {
+                    visited.add(n.getHash());
+                    allPaths[n.getHash()] = { lastState: n, prevStateHash: ex.getHash(), cost: parentPath.cost + 1};
+                    toExpand.push(n);
+                }
+                if (isTarget(n)) {
+                    shortestPath = this.reconstructPath(n.getHash(), allPaths);
+                }
+            }
+        }
+        return shortestPath;
+    }
+    /**
+     * bfs - Breadth First Search
+     */
     public bfs_all(from: T, expand: (p: T) => T[], isTarget: (T) => boolean): T[][] {
         const visited = new Set<string>([from.getHash()]);
         const toExpand = [from];
