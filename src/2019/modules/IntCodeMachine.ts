@@ -92,7 +92,7 @@ export class IntCodeMachine {
         this._stdout = out;
     }
 
-    public async Run(logLevel: number = 0) {
+    public async Run(logLevel: number = 1) {
         this._logLevel = logLevel;
         this._state = 1;
         const start = new Date().getTime();
@@ -106,7 +106,9 @@ export class IntCodeMachine {
     }
 
     private log(msg: string) {
-        console.log(msg);
+        if (this._logLevel >= 1) {
+            console.log(msg);
+        }
     }
     private argPos(arg: number, mode: ArgMode) {
         if (mode === 1) {

@@ -47,7 +47,7 @@ class Pathfinder<T extends IHashcode> {
         const allPaths: { [key: string]: IEndOfPath<T> } = {};
         let shortestPath: T[] = [];
         allPaths[from.getHash()] = {lastState: from, prevStateHash: "", cost: 0};
-        while (shortestPath.length == 0) {
+        while (shortestPath.length === 0) {
             const ex = toExpand.shift();
             const parentPath = allPaths[ex.getHash()];
             const accNeighbours = expand(ex);
