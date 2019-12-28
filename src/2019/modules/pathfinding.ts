@@ -32,7 +32,7 @@ class PrioQueue<T> {
     public peek() {
         return this._queue[0];
     }
-    public get size() : number {
+    public get size(): number {
         return this._queue.length;
     }
 }
