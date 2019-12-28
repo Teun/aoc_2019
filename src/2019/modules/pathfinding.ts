@@ -41,7 +41,7 @@ class Pathfinder<T extends IHashcode> {
     /**
      * bfs - Breadth First Search
      */
-    public bfs(from: T, expand: (p: T) => T[], isTarget: (T) => boolean): T[] {
+    public bfs(from: T, expand: (p: T) => T[], isTarget: (t: T) => boolean): T[] {
         const visited = new Set<string>([from.getHash()]);
         const toExpand = [from];
         const allPaths: { [key: string]: IEndOfPath<T> } = {};
@@ -144,4 +144,4 @@ class Pathfinder<T extends IHashcode> {
 
     }
 }
-export { Pathfinder };
+export { IHashcode, Pathfinder };
