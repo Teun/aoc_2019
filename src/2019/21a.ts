@@ -29,17 +29,18 @@ const rig = new Rig(21,
         machine.Run();
         console.log(await readText(machine));
 
-        /*
-        Jump when a safe spot is at D
-        Except when A, B and C are all safe
-        */
         sendLine(machine, "OR D J");  // D safe -> jump
-        sendLine(machine, "OR A T");  // A safe -> T
+        sendLine(machine, "OR E T");
+        sendLine(machine, "OR H T");
+        sendLine(machine, "AND T J");
+        sendLine(machine, "NOT A T");  // A safe -> T
+        sendLine(machine, "NOT T T");  // A safe -> T
         sendLine(machine, "AND B T"); // AND B safe
         sendLine(machine, "AND C T"); // AND C safe
         sendLine(machine, "NOT T T"); // AND NOT
         sendLine(machine, "AND T J");
-        sendLine(machine, "WALK");
+
+        sendLine(machine, "RUN");
         console.log(await readText(machine));
         return endValue;
     }
