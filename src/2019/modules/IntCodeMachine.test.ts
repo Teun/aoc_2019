@@ -42,3 +42,14 @@ it("Can work with large numbers", async () => {
 
     expect(machine.output[0]).toEqual(1125899906842624);
 });
+it("emits events for output", async () => {
+    const machine = new IntCodeMachine([104, 1125899906842624, 99]);
+    const prom = new Promise<number>((res, rej) => {
+        machine.on("output", () => {
+            res(machine.output[0]);
+        });
+    });
+    await machine.Run();
+    const result = await prom;
+    expect(result).toEqual(1125899906842624);
+});

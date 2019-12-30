@@ -1,5 +1,4 @@
-import { AssertionError } from "assert";
-
+import { EventEmitter } from "events";
 type DoNext = "Exit" | "Stay" | number;
 
 interface Op {
@@ -29,6 +28,9 @@ const opFromNum = (num: number): Op => {
 function timeout(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
+interface MachineOptions {
+    inputAfterTimeout?: number;
+}
 
 export class IntCodeMachine {
     private memory: number[];
@@ -43,6 +45,8 @@ export class IntCodeMachine {
     private _state = 0;
     private _totalWaitTime = 0;
     private _logLevel = 0;
+    private emitter = new EventEmitter();
+    
     public get isRunning(): boolean {
         return this._state === 1;
     }
@@ -54,8 +58,15 @@ export class IntCodeMachine {
 
     private _stdout: number[] = [];
 
-    constructor(code: number[], private name: string = "<unnamed>") {
+    constructor(code: number[], private name: string = "<unnamed>", private opt: MachineOptions = {}) {
         this.memory = code.slice(0);
+    }
+    public on(name: string, handle: () => void) {
+        if (name === "output") {
+            this.emitter.on("output", handle);
+            return;
+        }
+        throw new Error(`Unsupported event: ${name}`);
     }
 
     public input(val: number) {
@@ -137,12 +148,15 @@ export class IntCodeMachine {
             this._totalWaitTime += ms;
             await timeout(ms);
             ms = Math.min(50, (ms || 1) * 2);
+            if (ms >= 50 && this.opt.inputAfterTimeout) {
+                return this.opt.inputAfterTimeout;
+            }
         }
         return this._stdin.shift();
     }
     private writeOut(val: number) {
-        // console.debug(`     Machine ${this.name} outputs ${val}`);
-        return this._stdout.push(val);
+        this._stdout.push(val);
+        this.emitter.emit("output");
     }
 
     private async Step(): Promise<boolean> {
