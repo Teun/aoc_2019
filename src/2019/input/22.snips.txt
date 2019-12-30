@@ -1,0 +1,10 @@
+snip:small
+deal with increment 7
+deal into new stack
+deal into new stack
+====
+snip:small2
+cut 6
+deal with increment 7
+deal into new stack
+====
