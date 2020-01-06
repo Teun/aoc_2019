@@ -24,7 +24,7 @@ function bfs<T>(g: Grid<T>, from: Coord, to: Coord, access: (v: T) => boolean) {
   allPaths[from.name()] = [from];
   while (true) {
       for (const ex of toExpand.values()) {
-        const accNeighbours = ex.neighbours().filter((n) => access(g.forCoord(n)))
+        const accNeighbours = ex.neighbours().filter((n) => access(g.forCoord(n)));
         for (const n of accNeighbours) {
           if (n.name() === to.name()) {
               return [...allPaths[ex.name()], n];
@@ -67,6 +67,7 @@ const rig = new Rig(15,
                 break;
             }
         }
+        console.log(grid.toString());
         const path = bfs(grid, new Coord(0, 0), [...grid.positions("X")][0].pos,
             (v) => v !== "#");
         return path.length - 1;

@@ -26,12 +26,12 @@ const rig = new Rig(13,
                     const [x, y, type] = values;
                     if (x === -1 && y === 0) {
                         score = type;
-                        console.log(grid.toString());
-                        console.log(`Score: ${score}`);
                     } else {
                         grid.set(new Coord(x, y), [".", "#", "*", "-", "o"][type]);
                     }
-                }, 3
+                    console.log(grid.toString());
+                    console.log(`Score: ${score}`);
+            }, 3
             );
             if (!running) {break; }
             if (score !== null) {

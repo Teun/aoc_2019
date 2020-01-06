@@ -33,7 +33,7 @@ const rig = new Rig(14,
             return rule;
         });
         const need: Need = {FUEL: 1};
-        while (Object.keys(need).findIndex(k => k !== "ORE" && need[k] > 0) > -1) {
+        while (Object.keys(need).findIndex((k) => k !== "ORE" && need[k] > 0) > -1) {
             workBackward(need, rules);
         }
         return need.ORE;

@@ -91,6 +91,7 @@ export class IntCodeMachine {
         if (!groupSize) {
             groupSize = this._stdout.length;
         }
+        if(this._stdout.length === 0) { return; }
         while (this._stdout.length >= groupSize) {
             const block = this._stdout.splice(0, groupSize);
             cb(block);
