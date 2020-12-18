@@ -9,7 +9,7 @@ class Grid<T> {
         const longString = Object.keys(this._values).reduce((a, v) => {
             return a + this._values[v].pos.name() + this._values[v].val.toString();
         }, "");
-        const sha = createHash("sha");
+        const sha = createHash("sha1");
         sha.update(longString);
         return sha.digest("hex");
     }
@@ -175,6 +175,16 @@ class Coord {
         if (d === Direction.East) {return this.right; }
         if (d === Direction.West) {return this.left; }
     }
+    public neighbourToDiag(d: DirectionDiag) {
+        if (d === DirectionDiag.North) {return this.above; }
+        if (d === DirectionDiag.NorthEast) {return this.above.right; }
+        if (d === DirectionDiag.East) {return this.right; }
+        if (d === DirectionDiag.SouthEast) {return this.below.right; }
+        if (d === DirectionDiag.South) {return this.below; }
+        if (d === DirectionDiag.SouthWest) {return this.below.left; }
+        if (d === DirectionDiag.West) {return this.left; }
+        if (d === DirectionDiag.NorthWest) {return this.above.left; }
+    }
     public neighbours() {
         return [this.above, this.below, this.left, this.right];
     }
@@ -195,8 +205,9 @@ class Coord {
     }
 }
 enum Direction {North, East, South, West}
+enum DirectionDiag {North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
 const rotate = (from: Direction, turns: number): Direction => {
     return ((from + turns) + 4) % 4;
 
 };
-export {Coord, Direction, Grid, GridPos, rotate};
+export {Coord, Direction, DirectionDiag, Grid, GridPos, rotate};
