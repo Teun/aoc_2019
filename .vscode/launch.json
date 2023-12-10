@@ -11,8 +11,8 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/2020/18a.js",
-            "cwd": "${workspaceFolder}/src/2020",
+            "program": "${workspaceFolder}/src/2023/9a.js",
+            "cwd": "${workspaceFolder}/src/2023",
             "runtimeArgs": ["--stack-size=1000"]
         },
         {
@@ -23,7 +23,6 @@
 			"runtimeArgs": ["--inspect-brk"],
 			"console": "integratedTerminal",
 			"internalConsoleOptions": "neverOpen",
-			"port": 9229
 		}
     ]
 }
