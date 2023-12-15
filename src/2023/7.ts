@@ -14,11 +14,11 @@ const rig = new Rig(7,
             return {hand: s[1], bid: Number(s[2])};
         });
         hands.sort(by(handTypeScore)
-            .thenBy(h => letterStrength(h.hand[0]))
-            .thenBy(h => letterStrength(h.hand[1]))
-            .thenBy(h => letterStrength(h.hand[2]))
-            .thenBy(h => letterStrength(h.hand[3]))
-            .thenBy(h => letterStrength(h.hand[4]))
+            .thenBy((h: Hand) => letterStrength(h.hand[0]))
+            .thenBy((h: Hand) => letterStrength(h.hand[1]))
+            .thenBy((h: Hand) => letterStrength(h.hand[2]))
+            .thenBy((h: Hand) => letterStrength(h.hand[3]))
+            .thenBy((h: Hand) => letterStrength(h.hand[4]))
             );
         return hands.map((h, i) => h.bid * (i+1))
             .reduce((a,v)=>a+v, 0);

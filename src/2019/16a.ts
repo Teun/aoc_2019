@@ -27,7 +27,7 @@ const generateNext = (prev: number[], onlyAfter: number) => {
     return result;
 };
 const rig = new Rig(16,
-    async (d, o, cycles) => {
+    async (d, o, cycles: number) => {
         const signal = d.trim().repeat(10000);
         const offset = Number(d.substring(0, 7));
         let signalArray = signal.split("").map(Number);

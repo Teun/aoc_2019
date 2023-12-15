@@ -1,6 +1,6 @@
 import { bigCombination } from "js-combinatorics";
 import { firstBy as by } from "thenby";
-import {Coord, Grid} from "./modules/grid";
+import {Coord, Grid, GridPos} from "./modules/grid";
 import { parseToObjects } from "./modules/lineParser";
 import { Rig } from "./modules/rig";
 import { generateKeyPairSync } from "crypto";
@@ -51,7 +51,7 @@ const clearUntil = (grid: Grid<string>, from: Coord, until: number) => {
         return clearUntil(grid, from, until - allVisible.length);
     }
     const sorted = allVisible.sort(
-        by((c) => c.pos.x >= from.x ? -1 : 1)
+        by((c: GridPos<string>) => c.pos.x >= from.x ? -1 : 1)
          .thenBy((c) => Math.atan((c.pos.y - from.y) / (c.pos.x - from.x)))
         );
     return sorted[until - 1].pos;

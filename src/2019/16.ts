@@ -28,7 +28,7 @@ const generateNext = (prev: string, phase: number) => {
     return output.join("");
 };
 const rig = new Rig(16,
-    async (d, o, cycles) => {
+    async (d, o, cycles: number) => {
         let signal = d.trim();
         for (let phase = 1; phase <= cycles; phase++) {
             signal = generateNext(signal, phase);

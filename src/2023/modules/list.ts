@@ -1,8 +1,10 @@
 class List {
     private _values: number[][] = [[0]];
 
-    constructor(private Limit: number) {}
-    private Half = this.Limit / 2;
+    constructor(private Limit: number) {
+        this.Half = this.Limit/2;
+    }
+    private Half;
     private _length: number = 1;
 
     private partPos = (fullPos: number) => {

@@ -214,6 +214,5 @@ enum Direction {North, East, South, West}
 enum DirectionDiag {North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest}
 const rotate = (from: Direction, turns: number): Direction => {
     return ((from + turns) + 4) % 4;
-
 };
 export {Coord, Direction, DirectionDiag, Grid, GridPos, rotate};

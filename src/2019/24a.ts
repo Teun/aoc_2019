@@ -47,7 +47,7 @@ const calculateNext = (prev: Grid<string>): Grid<string> => {
 };
 
 const rig = new Rig(24,
-    async (d, o, ro) => {
+    async (d, o, ro: number) => {
         const startGrid = new Grid<string>();
         startGrid.parseFromString(d, {"#": "#", ".": "."});
         const values = parseToObjects(d, /.*/, (s, n) => {

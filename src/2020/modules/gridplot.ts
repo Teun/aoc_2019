@@ -22,7 +22,7 @@ function plotGrid<T>(grid: Grid<T>, out: string, colorMap?: (v: T) => ColorDef) 
             if (err) {
                 rej(err);
             } else {
-                res();
+                res(true);
             }
         });
 

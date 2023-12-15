@@ -12,7 +12,7 @@ const rig = new Rig(17,
             machine.readOutTillEmpty((val) => {
                 const gridStr = val.map((i) => String.fromCharCode(i)).join("");
                 grid.parseFromString(gridStr, {"#": "#", "^": "^"});
-                res();
+                res(true);
             });
         });
         console.log(grid.toString());
