@@ -1,4 +1,5 @@
 import { createHash } from "crypto";
+import { firstBy } from "thenby";
 
 class Grid<T> {
     private _values: {[k: string]: GridPos<T>} = {};
@@ -6,7 +7,8 @@ class Grid<T> {
         return Object.keys(this._values).map((k) => this._values[k]);
     }
     public hash() {
-        const longString = Object.keys(this._values).reduce((a, v) => {
+        const keys = Object.keys(this._values).sort(firstBy(v => v));
+        const longString = keys.reduce((a, v) => {
             return a + this._values[v].pos.name() + this._values[v].val.toString();
         }, "");
         const sha = createHash("sha1");
@@ -191,6 +193,17 @@ class Coord {
         if (d === DirectionDiag.West) {return this.left; }
         if (d === DirectionDiag.NorthWest) {return this.above.left; }
     }
+    public stepsTo(d: Direction, steps: number) {
+        if(steps < 0){
+            steps = -steps;
+            d = rotate(d, 2);
+        }
+        let r: Coord = this;
+        for (let i = 0; i < steps; i++) {
+            r = r.neighbourTo(d);
+        }
+        return r;
+    }
     public neighbours() {
         return [this.above, this.below, this.left, this.right];
     }
@@ -199,6 +212,10 @@ class Coord {
             new Coord(this.x - 1, this.y - 1), new Coord(this.x + 1, this.y + 1),
             new Coord(this.x + 1, this.y - 1), new Coord(this.x - 1, this.y + 1)
         ];
+    }
+    public inside(topleft: Coord, bottomright: Coord): boolean {
+        return this.x >= topleft.x && this.x <= bottomright.x
+            && this.y >= topleft.y && this.y <= bottomright.y;
     }
     public offset(dx: number, dy: number) {
         return new Coord(this.x + dx, this.y + dy);
