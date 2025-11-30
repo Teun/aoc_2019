@@ -1,5 +1,3 @@
-import {firstBy as by } from "thenby";
-
 interface IHashcode {
     getHash: () => string;
 }
@@ -104,10 +102,8 @@ class Pathfinder<T extends IHashcode> {
             counter++;
             const ex = toExpand.dequeue();
             const parentPath = allPaths[ex.lastState.getHash()];
-            console.time("expand");
             const accNeighbours = expand(ex.lastState);
-            if (counter % 100 === 0) {
-                console.timeEnd("expand");
+            if (counter % 1000 === 0) {
                 console.log(toExpand.size);
             }
             for (const n of accNeighbours) {
@@ -144,4 +140,4 @@ class Pathfinder<T extends IHashcode> {
 
     }
 }
-export { IHashcode, Pathfinder };
+export { IHashcode, IVector, Pathfinder };

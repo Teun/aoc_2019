@@ -117,6 +117,33 @@ class Grid<T> {
                 }
         });
     }
+    public copy(boundaries: Coord[], toTopLeft: Coord) {
+        const targetBoundaries = [toTopLeft, 
+            new Coord(toTopLeft.x + boundaries[1].x-boundaries[0].x,
+                toTopLeft.y + boundaries[1].y-boundaries[0].y)];
+        const allKeys = Object.keys(this._values);
+        allKeys.forEach((k) => {
+            const c = this._values[k];
+            if (c.pos.x >= targetBoundaries[0].x &&
+                c.pos.x <= targetBoundaries[1].x &&
+                c.pos.y >= targetBoundaries[0].y &&
+                c.pos.y <= targetBoundaries[1].y) {
+                    delete this._values[c.pos.name()];
+                }
+        });
+        allKeys.forEach((k) => {
+            const c = this._values[k];
+            if (c.pos.x < boundaries[0].x ||
+                c.pos.x > boundaries[1].x ||
+                c.pos.y < boundaries[0].y ||
+                c.pos.y > boundaries[1].y) {
+                    const newCoord = new Coord(
+                        c.pos.x + toTopLeft.x - boundaries[0].x,
+                        c.pos.y + toTopLeft.y - boundaries[0].y);
+                    this.set(newCoord, c.val);
+            }
+        });
+    }
     public toString(display: (c: Coord, v: T) => string = null) {
         if (!display) { display = (c1, v1) => v1 === null ? " " : v1.toString()[0]; }
         const [leftTop, rightBottom] = this.boundaries();
