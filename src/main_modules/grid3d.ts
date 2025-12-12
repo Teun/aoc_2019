@@ -144,5 +144,12 @@ class Coord {
     public offset(dx: number, dy: number, dz: number) {
         return new Coord(this.x + dx, this.y + dy, this.z + dz);
     }
+    public distance(other: Coord) {
+        return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2) + Math.pow(this.z - other.z, 2));
+    }
+    public distanceMnhtn(other: Coord) {
+        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y) + Math.abs(this.z - other.z);
+    }
+
 }
 export {Coord, Grid3d, GridPos};
