@@ -2,7 +2,6 @@ import { Rig } from '../main_modules/rig';
 import { Coord, Grid } from '../main_modules/grid';
 import { parseToObjects } from '../main_modules/lineParser';
 import { bigCombination, combination } from "js-combinatorics";
-import{ plotGrid } from '../main_modules/gridplot';
 
 const rig = new Rig(9, async (input, opt, testOpt) => {
     const corners = parseToObjects(input, /(\d+),(\d+)/,
@@ -55,13 +54,30 @@ function valid(p: Coord[], horizontalLines: { y: number; lowestX: number; highes
     const lowY = Math.min(p[0].y, p[1].y);
     const highY = Math.max(p[0].y, p[1].y);
 
-    const crossingH1 = horizontalLines
-        .filter(h => h.y >= lowY && h.y <= highY 
-            && h.lowestX <= lowX && h.highestX >= lowX);
-    const crossingH2 = horizontalLines
-        .filter(h => h.y >= lowY && h.y <= highY
-            && h.lowestX <= highX && h.highestX >= highX);
+    return noCrossings(lowX + .1, lowY + .1, highX - .1, lowY+ .1, horizontalLines, verticalLines)
+        && noCrossings(lowX + .1, highY - .1, highX - .1, highY - .1, horizontalLines, verticalLines)
+        && noCrossings(lowX + .1, lowY + .1, lowX + .1, highY - .1, horizontalLines, verticalLines)
+        && noCrossings(highX - .1, lowY + .1, highX - .1, highY - .1, horizontalLines, verticalLines);
+}
 
-    return true;
+function noCrossings(x1: number, y1: number, x2: number, y2: number, horizontalLines: { y: number; lowestX: number; highestX: number; }[], verticalLines: { x: number; lowestY: number; highestY: number; }[]): boolean {
+    if(x1 === x2) {
+        const x = x1;
+        const lowY = Math.min(y1, y2);
+        const highY = Math.max(y1, y2);
+        return horizontalLines.every(hl => hl.y < lowY || hl.y > highY || hl.highestX < x || hl.lowestX > x);
+    } else if(y1 === y2) {
+        const y = y1;
+        const lowX = Math.min(x1, x2);
+        const highX = Math.max(x1, x2);
+        return verticalLines.every(vl => vl.x < lowX || vl.x > highX || vl.highestY < y || vl.lowestY > y);
+    } else {
+        throw new Error("Not a straight line");
+    }
+}
+
+
+)
+
 }
 
