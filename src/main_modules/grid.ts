@@ -95,6 +95,40 @@ class Grid<T> {
         }
         return newGrid;
     }
+    public rotate(rot: number): Grid<T> {
+        let result = this.clone();
+        
+        for (let index = 0; index < rot; index++) {
+            result = result.rotateClockwiseOnce();
+        }
+        return result;
+    }
+    public flip(): Grid<T> {
+        const result = new Grid<T>();
+        this.values.forEach((v) => {
+            const newPos = new Coord(-v.pos.x, v.pos.y);
+            result.set(newPos, v.val);
+        });
+        return result;
+    }
+    rotateClockwiseOnce(): Grid<T> {
+        const result = new Grid<T>();
+        this.values.forEach((v) => {
+            const newPos = new Coord(-v.pos.y, v.pos.x);
+            result.set(newPos, v.val);
+        });
+        return result;
+    }
+    public alignToOrigin(){
+        const boundaries = this.boundaries();
+        const newGrid = new Grid<T>();
+        this.values.forEach((v) => {
+            const newPos = new Coord(v.pos.x - boundaries[0].x, v.pos.y - boundaries[0].y);
+            newGrid.set(newPos, v.val);
+        });
+        return newGrid;
+
+    }
     public boundaries() {
         const out = this.values.reduce((a, v) => {
             a[0] = Math.min(a[0], v.pos.x);
